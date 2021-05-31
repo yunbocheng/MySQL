@@ -60,6 +60,7 @@
       show tables; (这个不是SQL语句，是MySQL的命令)
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210506161142.png)
+
 (部门表、员工表、工资等级表)
 - 第六步：初始化数据
 
@@ -79,6 +80,7 @@
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210506163116.png)
 
 （部门编号） （部门名称）（部门位置）
+
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210506213507.png)
 
 （员工编号） （员工姓名）（工作岗位）（上级领导编号）（入职时间）（月薪）（补助/津贴）（部门编号）
