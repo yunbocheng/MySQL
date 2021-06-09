@@ -2142,7 +2142,7 @@ mysql数据库默认的隔离级别是 : 可重复读。
 
 视图可以隐藏表的实现细节。保密级别较高的系统，数据库只对外提供相关的视图，java程序员只对视图对象进行CRUD;
 
-### 15.数据的导入
+### 15.数据的导入和导出
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210609185518.png)
 
