@@ -273,7 +273,7 @@ select ename,comm from emp where comm = null; 错误写法，不能进行赋值�
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210531180956.png)
 
 2.12 找出工作岗位是 MANAGER 和 SALESMAN 的员工
-   > select ename,job from emp where job = 'MANAGER' or job = 'SALESMAN';
+   > select ename,job from emp where job = 'MANAGER' or  job = 'SALESMAN';
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210531182005.png)
 
@@ -285,7 +285,7 @@ select ename,comm from emp where comm = null; 错误写法，不能进行赋值�
 注意: 当运算符的优先级不确定的时候，可以加括号调整计算顺序。
 
 2.14 in 等同于 or :找出工作岗位是 MANAGER 和 SALESMAN 的员工 
-   > select ename,job from emp where job = 'MANAGER' or 'SALESMAN';
+   > select ename,job from emp where job = 'MANAGER' or job='SALESMAN';
    > select ename,job from emp where job in('MANAGER','SALESMAN');
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20210531183650.png)
