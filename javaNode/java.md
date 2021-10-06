@@ -3,7 +3,7 @@
 ### Java体系的技术被划分为三大块：
 - JavaSE : 标准版
 - JavaEE : 企业版
-- JavaME : 微型版
+- JavaME : 移动版
 ### 安装JDK之后：
 - JDK : java开发工具箱
 - JRE : java运行环境
