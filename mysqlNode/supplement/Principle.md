@@ -20,7 +20,9 @@
 
 **以下代码是正确的，在group by 和 having还有ordey by 之后是支持别名的(在mysql是支持的，但是在Oracle中不支持)，但是在where后不支持别名，在显示开发中尽量不用别名处理。**
 
-![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008094622.png)
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008094622.png)、
+
+**gak编码方式中汉字占两个字节，utf8中汉字占3个字节，英文和数字都占一个字节。**
 
 ### 1. 数据库的编码方式
 
@@ -109,6 +111,22 @@ create table users(id int(10),name varchar(50));
 
 ```mysql
 insert into users values(1,'jack')
+```
+
+#### 5.1 if exist与 if not exists 的用法
+
+- if exists ：代表如果存在。这个多用于在删除表和数据库的时候使用。
+
+```mysql
+DROP table IF EXISTS peolpe;  # 这个代表如果people这张表存在就删除，即使不存在不会报错
+DROP database IF EXISTS test; 
+```
+
+- if not exists : 代表如果不存在。这个多用于在创建表和数据库的时候使用。
+
+```mysql
+CREATE database IF NOT EXISTS test; # 代表如果不存在，就创建这个数据库，存在不会报错。
+CREATE table IF NOT EXISTS test;
 ```
 
 ### 6. SQL三大语言分类
@@ -249,7 +267,7 @@ SELECT salary *12*(1+IFNULL(salaryadd)) as "年薪" FROM users ORDER BY 年薪 D
 
 ### 18. 多列排序
 
-**先将薪水进行降序排序，再将名字按照升序排序。**
+**先将薪水进行降序排序，再将薪水相同的名字按照升序排序。**
 
 **注意：先写哪个属性就先对哪个属性进行排序，按顺序执行。**
 
@@ -373,7 +391,26 @@ SELECT COUNT(1) FROM emp;
 - MYISAM存储引擎下，COUNT(*)的效率要高。
 - INNODB存储引擎下，COUNT(*)和COUNT(1)的效率差不多，比COUNT(字段)要高些。
 
-#### 22.2 分组查询（group by）
+#### 22.2 MAX() 与 MIN() 函数详解
+
+- **使用这两个函数作用与varchar等数据类型的字段，会自动将其转换为长度，相当于MAX(LENGTH(字段));  汉字占两个或者三个长度。**
+
+```mysql
+SELECT MAX(name) FROM emp;  # 此时返回的是姓名中最长的那个
+SELECT MIN(name) FROM emp;  # 此时返回的是姓名中最短的那个
+```
+
+#### 22.3 分组函数(聚合函数)与去重(distinct)联合使用
+
+- 实现去重的统计。
+
+```mysql
+SELECT SUM(DISTINCT salary) FROM emp;
+```
+
+- **去除重复的工资，然后在将所有的相加。**
+
+#### 22.4 分组查询（group by）
 
 - **查询列表比较特殊，要求是分组函数和group by 后出现的字段。**
 
@@ -831,6 +868,8 @@ SELECT MOD(10,-3); #  1
 SELECT MOD(-10,-3); # -1
 ```
 
+7. **rand()：获取[0,1)之间的随机数，左闭右开，和Java中的Random一样。**
+
 #### 39.3 日期函数
 
 1. **now()：返回当前系统时间**
@@ -839,7 +878,7 @@ SELECT MOD(-10,-3); # -1
 SELECT NOW();  # 2021-10-07 20:16:09 返回的是datetime类型
 ```
 
-2. **curtime()：返回当前系统时间，不包含时间**
+2. **curtdate()：返回当前系统时间，不包含时间**
 
 ```mysql
 SELECT CURDATE();  # 2021-10-07
@@ -863,6 +902,12 @@ SELECT YEAR(now());
 SELECT DATEDIFF('2020-1-1','1999-1-1'); #这个函数是用于计算日期之间的差值。
 ```
 
+6. **monthname()：以英文的形式返回月份(英文字母)**
+
+```mysql
+SELECT MONTHNAME('2021-10-19'); # October
+```
+
 #### 39.4 其他函数
 
 - **select version() : 查看当前数据库版本。**
@@ -881,6 +926,18 @@ SELECT database();
 
 ```mysql
 SELECT user();
+```
+
+- **password(字符)：返回指定字符的加密形式**
+
+```mysql
+SELECT password('程云博'); # *D87E50764614A3D8CDAE81EF88A1D065AE9A5230
+```
+
+- **md5(字符)：返回MD5加密形式数据**
+
+```mysql
+SELECT MD5('程云博');  # 224a7113e9e509a57b738e977fe3b723
 ```
 
 ### 40.流程控制函数
@@ -928,13 +985,25 @@ FROM emp;
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/5.png)
 
-### 41.连接查询(多表查询)
+- **两种写法的区别**
+
+![image-20211008163744502](https://gitee.com/YunboCheng/imageBad/raw/master/image/image-20211008163744502.png)
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008163811.png)
+
+### 41.连接查询(多表查询) 92语法
 
 #### 41.1 连接查询分类
 
 ![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008110734.png)
 
-#### 41.2  等值查询
+- 在92语法中，将**连接条件和筛选条件**都放到了 **where中**，不利于阅读。
+
+#### 41.2  等值查询（92语法）
+
+- **语法格式**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008165155.png)
 
 #### 41.2.1 查询时给表起别名（92语法）
 
@@ -954,15 +1023,79 @@ SELECT s.salary,d.dept FROM emp as s,jobs as d WHERE s.job_id = d.job_id;
 SELECT e.name,j.dept FROM emp e,jobs j WHERE e.id = j.id AND e.add_salary IS NOT NULL;
 ```
 
-#### 41.2.2查询时与分组函数联合使用
+#### 41.2.2 查询时与分组函数联合使用（92语法）
 
 ![image-20211008114227825](https://gitee.com/YunboCheng/imageBad/raw/master/image/image-20211008114227825.png)
 
-#### 41.2.3 多表连接
+#### 41.2.3 多表连接（92语法）
 
 案例：查询员工名、部门名和所在的城市
 
 ![image-20211008114700443](https://gitee.com/YunboCheng/imageBad/raw/master/image/image-20211008114700443.png)
 
-### 41.3 非等值查询
+#### 41.3 非等值查询 （92语法）
+
+- **语法格式**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008165407.png)
+
+- 查询工资的等级并且只显示等级为 A的薪资。
+
+```mysql
+SELECT e.salary,g.grade FROM emp e,jobs g WHERE salary BETWEEN g.lower_sal AND g.hight_sal AND g.grade = 'A'; 
+```
+
+#### 41.4 自连接查询（92语法）
+
+- **语法格式**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008165459.png)
+
+- **自连接的意义在于：把同一张表看作是两张表。**
+
+例题：查询员工名、id值以及上级领导名称、id值。（这两个数据处于同一张表中）
+
+查询的精髓：员工上级领导的id等于上级领导的员工id
+
+```mysql
+SELECT e.emp_id,e.last_name,m.emp_id,m.last FROM emp e, emp m WHERE e.manage_id = m.emp_id;  
+```
+
+### 
+
+### 42.连接查询(多表查询) 99语法
+
+- 语法格式以及类型
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008170912.png)
+
+**使用的时候只需要将类型所对应的关键字替换即可，其结构并不需要变化。**
+
+#### 42.1 内连接
+
+- **语法格式**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008171115.png)
+
+##### 42.1.1 等值连接
+
+案列：查询员工名中包含a的姓名、部门名
+
+```mysql
+SELECT e.last_name,j.job_title FROM emp e INNER JOIN jobs j ON e.jod_id=j.job_id WHERE e.last_name LIKE '%a%';
+```
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008171918.png)
+
+- 等值连接之多表连接
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211008172355.png)
+
+##### 42.1.2 非等值连接
+
+案例：查询工资级别>20的个数，并且按工资级别降序排序。
+
+```
+
+```
 
