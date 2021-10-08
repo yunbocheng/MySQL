@@ -9,5 +9,13 @@
       <jdbc-url>jdbc:mysql://localhost:3306/weixin?serverTimezone = GMT</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="weixin2@localhost" uuid="69cee140-6b18-4f3c-a4bb-93c87c4666a4">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <remarks>作业</remarks>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/weixin2?serverTimezone = GMT</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
