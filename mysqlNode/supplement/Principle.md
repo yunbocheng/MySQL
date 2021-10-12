@@ -24,6 +24,8 @@
 
 **gak编码方式中汉字占两个字节，utf8中汉字占3个字节，英文和数字都占一个字节。**
 
+**日期类型要使用单引号或者双引号括起来**
+
 ### 1. 数据库的编码方式
 
 查看当前数据库的编码方式
@@ -281,7 +283,15 @@ SELECT salary,name FROM users ORDER BY salary DESC,name ASC;
 
 ### 20. Union 结果集相
 
-Union在使用的时候要求两个结果集的列数一致。
+#### 20.1 Union 关键字
+
+**Union会发生去重现象，当查询出来的结果存在重复项的时候会进行去重处理。**
+
+Union中要求查询的结果来自于多个表，且多个表没有直接的连接关系，但查询的信息一直时。
+
+Union的查询结果来自于多个表，且多个表没有直接的连接关系，但查询的信息一致时。
+
+要求多条查询语句查询的每一列的类型和顺序最好一致。
 
 **注意：在Mysql中没有要求这两个列的类型一致，但是在Oracle中要求两个列的数据类型也要一致。**
 
@@ -292,6 +302,10 @@ SELECT age,name FROM users WHERE age = 10;
 UNION
 SELECT age,name FROM users WHERE age = 20;
 ```
+
+#### 20.2 Union all 关键字
+
+**使用Union all 可以解决查询结果去重现象，将查询出来的重复结果去重。**
 
 ### 21.limlit  分页
 
@@ -621,13 +635,49 @@ SELECT id,name,birth as birth from users;
 
 ### 34.关于修改和删除数据
 
-- 修改数据
+- **修改单表数据**
+
+语法格式
 
 ```mysql
-UPDATE users SET WHERE id = 1;
+UPDATE 表名 SET 列名=列值,列名=列值... WHERE 筛选条件。 
 ```
 
-- 删除数据
+案例分析
+
+```mysql
+UPDATE users SET id=3 WHERE id = 1;
+```
+
+- **修改多表数据**
+
+sql92语法
+
+```mysql
+UPDATE 表1 别名,表 2 别名 SET  列名=列值... WHERE 连接条件 AND 筛选条件。
+```
+
+sql99语法
+
+```mysql
+UPDATE 表1 别名 INNER/LEFT/RIGHT JOIN 表2 别名 ON 连接条件 SET 列名=列值,... WHERE 筛选条件;
+```
+
+- **删除数据**
+
+语法格式
+
+```mysql
+DELETE FROM 表名 WHERE 筛选条件;
+```
+
+```mysql
+TRUNCATE TABLE 表名;
+```
+
+- 关于这两种语法的区别下边有介绍。
+
+案例分析
 
 ```mysql
 DELETE FROM users WHERE id = 1;
@@ -665,7 +715,7 @@ CREATE TABLE users2 as SELECT name,id FROM users where id = 1;
 DELETE FROM users;
 ```
 
-**delete删除数据的原理：**
+**37.1 delete删除数据的原理：**
 
 - 只是将表中的这个数据删除了，但是这个数据所占的空间还是存在的，不会被释放。这种删除数据的方式速度比较慢，删除效率低。但是这种删除方式支持回滚，后悔了可以在恢复数据。
 - **delete可以使用where语句删除单条数据。**
@@ -675,12 +725,18 @@ DELETE FROM users;
 TRUNCATE table users;
 ```
 
-**truncate删除数据的原理：**
+**37.2 truncate删除数据的原理：**
 
 - 将数据永久的删除，不可以进行回滚，释放数据存储的空间。效率高。
+- truncate后面不可以加where筛选条件，这就代表truncate删除的是整张表的数据。
 - **truncate是删除全部数据，不可以删除单条。**
 
 **上亿条数据delete需要删除一个小时，truncate只需要1秒。**
+
+##### **37.3 两者的区别**
+
+- delete删除后，在插入数据，自增长列(主键)的值从断点开始。而truncate删除后，在插入数据，自增长列(主键)从1开始。
+- truncate删除的数据没有返回值，delete删除的数据有返回值。
 
 ### 38.<=> 符号
 
@@ -814,6 +870,12 @@ SELECT　RPAD('天气不错',2,'*');   # 天气
 
 ```mysql
 SELECT REPLACE('今天的天气不错，天气晴朗','天气','乌云') // 今天的乌云不错，乌云晴朗
+```
+
+综合案列：获取邮箱中的用户名(@字符前面的是邮箱) 比如：mike@123.com获取mike
+
+```mysql
+SELECT substr(email,1,insert(mike,'@')-1) ’用户名' FROM emp;
 ```
 
 #### 39.2 数学函数
@@ -983,7 +1045,16 @@ FROM emp;
 
 2. **case函数的第二种写法（语句写法）：**
 
-![](https://gitee.com/YunboCheng/imageBad/raw/master/image/5.png)
+```mysql
+SELECT salary,
+CASE
+WHEN salary>20000 THEN 'c'
+WHEN salary>15000 THEN 'b'
+WHEN salary>10000 THEN 'a'
+ELSE 'd'
+END AS '薪资级别'
+FROM emp;
+```
 
 - **两种写法的区别**
 
@@ -1061,8 +1132,6 @@ SELECT e.salary,g.grade FROM emp e,jobs g WHERE salary BETWEEN g.lower_sal AND g
 SELECT e.emp_id,e.last_name,m.emp_id,m.last FROM emp e, emp m WHERE e.manage_id = m.emp_id;  
 ```
 
-### 
-
 ### 42.连接查询(多表查询) 99语法
 
 - 语法格式以及类型
@@ -1093,9 +1162,166 @@ SELECT e.last_name,j.job_title FROM emp e INNER JOIN jobs j ON e.jod_id=j.job_id
 
 ##### 42.1.2 非等值连接
 
-案例：查询工资级别>20的个数，并且按工资级别降序排序。
+案例：查询各个工资得级别个数，级别个数大于20的个数，并且按工资级别降序排序。
 
+```mysql
+SELECT e.COUNT(*),j.grade_level FROM emp e,INNER JOIN jods j ON e.salary BETWEEN lower_sal AND high_sal GROUP BY grade_level HAVING COUNT(*)>20 ORDER BY grade_level DESC;
 ```
 
+##### 42.1.3 自连接
+
+案例：查询员工得名字、上级得名字
+
+```mysql
+SELECT e.last_name,m.last_name FROM emp e JOIN emp m ON e.manager_id = m.employee_id WHERE e.last_name LIKE '%k%';
 ```
+
+#### 42.2 外连接
+
+##### 42.2.1 左右外连接
+
+- 外连接查询的结果为主表中的所有记录，如果从表中有和他匹配的值，则显示匹配信息，如果从表中不存在和他匹配的信息，则显示NULL；
+
+案例：查询哪个部门没有员工（此时部门表是主表，员工表是从表，连接条件是员工表中的部门id等于部门表中的部门id）
+
+```mysql
+SELECT　d.*,e.employee_id FROM dept d LEFT OUTER JOIN employees e ON d.dept_id = e.dept_id WHERE e.employee_id IS NULL;
+```
+
+##### 42.2.2 全外连接
+
+- **全外连接在mysql中不支持。**
+
+- **全外连接=内连接的结果+表1中有但表2中没有的+表2中有但是表1中没有的。**
+
+- 既然mysql中不支持全外连接，那么我们可以使用别的思想：将**左外连接加上+右外连接**（此时会出现两个内连接，我们在左外或者右外中使用where条件去掉一个内连接即可。）使用关键字 **union**来拼接两个结果集，此时得到的就是全外连接。
+- **语法格式** （使用**FULL OUTER JOIN**）
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009095443.png)
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009095238.png)
+
+##### 42.2.3 交叉连接
+
+- 交叉连接就是一个笛卡尔乘积。在99语法中使用关键字 **cross** 表示。
+
+```  mysql
+SELECT e.*,d.* FROM emp CROSS JOIN dept;  # 此时查询到的结果就是一个笛卡尔积结果
+```
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009100318.png)
+
+### 43 子查询
+
+- 出现在其他语句中的select语句，称为子查询或内查询。
+- 外部的查询语句，称为主查询或者外查询。
+- **子查询的执行优先于主查询，主查询的条件用到了子查询的结果。**
+
+#### 43.1 子查询的分类
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009101546.png)
+
+**主要使用的是 where或者 having之后的子查询。**
+
+#### 43.2 where或having后的查询
+
+##### 43.2.1 标量子查询
+
+- 标量子查询一般搭配**单行操作符**使用。
+
+```markdown
+> < <= >= <> !=
+```
+
+- **mysql支持嵌套多个子查询。**
+
+案例：在where之后使用分组函数。
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009102755.png)
+
+案例：在having之后使用分组函数
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009103119.png)
+
+##### 43.2.2 列子查询
+
+- 列子查询一般搭配 **多行操作符**使用
+
+```mysql
+in、any/some、all
+```
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009104504.png)
+
+- IN(结果集) :  a IN(结果集)，只要满足a等于IN中的一个结果即可。
+- NOT IN(结果集) ：a NOT IN(结果集)，满足a全不等于NOT IN中的结果集。
+- ANY/SOME(结果集) ：a只要大于结果集中的一个结果即可。(也就是MIN(结果集))
+
+- ALL(结果集)：a要全部大于结果集中的所有结果。
+
+**案例：**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009105455.png)
+
+ 
+
+#### 43.3 select后加子查询。
+
+- **select只支持标量子查询。**
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009111143.png)
+
+#### 43.4 from后加子查询
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211009111732.png)
+
+#### 43.4 exists后加子查询
+
+- exists的语法格式 （他返回0或者1.相当于一个boolean类型，子查询存在返回1，不存在0）
+
+```mysql
+SELECT EXISTS(exists(select * from users where id = 1));  #存在返回1，不存在返回0
+```
+
+###  44.插入语句
+
+- **插入语句属于DML语句。**
+
+#### **44.1 语法格式**
+
+语法一：
+
+```mysql
+insert into 表名(列名,...) values(列值,...);
+```
+
+语法二：
+
+```mysql
+insert into 表名 set 列名=列值,...;
+```
+
+#### 44.2 两种插入方式的比较
+
+- 语法一支持插入多行，方式二不支持。
+
+多行查询语法格式：
+
+```mysql
+insert into 表名(列名,...) values(列值,...),(列值...),(列值...);
+```
+
+- 语法一支持子查询，语法二不支持。
+
+子查询语法格式：
+
+```mysql
+insert into beauty(id,name,phone) select t_id,t_name,t_phone from boys where id < 3l
+```
+
+ **注意：使用子查询的时候不加values或者value，两个关键字实现的效果是一样的。不论是插入一个字段还是多个字段，都可以使用value或者values。**
+
+
+
+
 

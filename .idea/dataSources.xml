@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="weixin@localhost" uuid="36e8994e-e14a-4086-9fea-b24a54d7c7ac">
+    <data-source source="LOCAL" name="exam@localhost" uuid="f05095f9-5f7a-4b8b-a638-9cffa5cdc8d8">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <remarks>微信科技</remarks>
+      <remarks>考试</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/weixin?serverTimezone = GMT</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="weixin2@localhost" uuid="69cee140-6b18-4f3c-a4bb-93c87c4666a4">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <remarks>作业</remarks>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/weixin2?serverTimezone = GMT</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/exam?serverTimezone = GMT</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
