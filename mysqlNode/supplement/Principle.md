@@ -919,7 +919,9 @@ SELECT FLOOR(-1.02);  # -2
 ```mysql
 SELECT TRUNCATE(1.65,1);  # 1.6
 SElECT TRUNCATE(1.677,2); # 1.67
-```
+```     
+
+![](https://gitee.com/YunboCheng/imageBad/raw/master/image/20211014082859.png)
 
 6. **MOD(数字，数字)：除整求余。**
 
